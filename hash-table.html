@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Hash Cedveli</title>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <header>
+            <p>Hash Cedveli (Hash Table)</p>
+            <a href="index.html">← Home</a>
+        </header>
+
+        <main>
+            <div class="section">
+                <h3>Hash Table (Acar-Deyer cutu — Key: Value)</h3>
+                <p>Acar (Key) hash funksiyasindan kecerek indeks tapir: <code>index = sum(ord(c)) % 5</code></p>
+                <p>Bu numunede elave etdiyimiz acarin index'i hemin acarin ascii'deki qarsiliginin mod 5 - idir.</p>
+                <p>
+                   1 → 49 <br>
+                   2 → 50 <br>
+                   a → 97 <br>
+                   b → 98 ve s.
+                </p>
+
+                <div class="controls">
+                    <input type="text" id="hashKey" placeholder="Acar (Key: mes. Ali)">
+                    <input type="text" id="hashVal" placeholder="Deyer (Value: mes. 95)">
+                    <div>
+                        <div>
+                            <button onclick="insertItem()">Elave et — table[idx].append((k, v))</button>
+                            <button onclick="searchItem()">Axtar — get(key)</button>
+                        </div>
+                        <div style="margin-top: 6px;">
+                            <button onclick="removeItem()">Sil — pop(key)</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="boxes" id="hashContainer" style="flex-direction: column; gap: 8px;"></div>
+                <div class="msg" id="msg"></div>
+            </div>
+        </main>
+
+    </div>
+
+    <script>
+        class HashTable {
+            constructor(size = 5) {
+                this.size = size;
+                this.table = Array.from({ length: size }, () => []);
+            }
+
+            _hash(key) {
+                let total = 0;
+                for (let i = 0; i < key.length; i++) {
+                    total += key.charCodeAt(i);
+                }
+                return total % this.size;
+            }
+
+            set(key, value) {
+                const index = this._hash(key);
+                const bucket = this.table[index];
+                for (let i = 0; i < bucket.length; i++) {
+                    if (bucket[i][0] === key) {
+                        bucket[i][1] = value;
+                        return index;
+                    }
+                }
+                bucket.push([key, value]);
+                return index;
+            }
+
+            get(key) {
+                const index = this._hash(key);
+                const bucket = this.table[index];
+                for (let i = 0; i < bucket.length; i++) {
+                    if (bucket[i][0] === key) {
+                        return { value: bucket[i][1], index };
+                    }
+                }
+                return null;
+            }
+
+            remove(key) {
+                const index = this._hash(key);
+                const bucket = this.table[index];
+                for (let i = 0; i < bucket.length; i++) {
+                    if (bucket[i][0] === key) {
+                        bucket.splice(i, 1);
+                        return index;
+                    }
+                }
+                return null;
+            }
+        }
+
+        const ht = new HashTable(5);
+        ht.set("Ali", 85);
+        ht.set("Natiq", 92);
+        ht.set("Ferid", 98);
+
+        function render() {
+            const container = document.getElementById("hashContainer");
+            container.innerHTML = "";
+
+            ht.table.forEach((bucket, index) => {
+                const itemsText = bucket.length > 0
+                    ? bucket.map(pair => `[${pair[0]} : ${pair[1]}]`).join("  →  ")
+                    : "bos";
+
+                container.innerHTML += `
+                    <div class="box" style="text-align: left; display: flex; justify-content: space-between; align-items: center;">
+                        <div>${itemsText}</div>
+                        <span style="margin-top: 0;">Bucket idx: ${index}</span>
+                    </div>
+                `;
+            });
+        }
+
+        function showMsg(text, isError = true) {
+            const msgEl = document.getElementById("msg");
+            msgEl.style.color = isError ? "#b00" : "#000";
+            msgEl.innerText = text;
+        }
+
+        function insertItem() {
+            const keyInput = document.getElementById("hashKey");
+            const valInput = document.getElementById("hashVal");
+            const key = keyInput.value.trim();
+            const val = valInput.value.trim();
+
+            if (key === "" || val === "") return showMsg("Acar ve deyer daxil edin.");
+            const idx = ht.set(key, val);
+            showMsg(`"${key}" hash olundu -> indeks ${idx} (Collision varsa zencire elave edildi)`, false);
+            keyInput.value = "";
+            valInput.value = "";
+            render();
+        }
+
+        function searchItem() {
+            const key = document.getElementById("hashKey").value.trim();
+            if (key === "") return showMsg("Axtarmaq ucun acar (Key) daxil edin.");
+            const res = ht.get(key);
+            if (!res) return showMsg(`"${key}" tapilmadi.`);
+            showMsg(`Tapildi (indeks ${res.index}): ${key} = ${res.value}`, false);
+        }
+
+        function removeItem() {
+            const key = document.getElementById("hashKey").value.trim();
+            if (key === "") return showMsg("Silmek ucun acar (Key) daxil edin.");
+            const idx = ht.remove(key);
+            if (idx === null) return showMsg(`"${key}" tapilmadi.`);
+            showMsg(`"${key}" indeks ${idx}-den silindi.`, false);
+            document.getElementById("hashKey").value = "";
+            render();
+        }
+
+        render();
+    </script>
+
+</body>
+
+</html>

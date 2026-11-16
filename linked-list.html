@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Linked List</title>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <header>
+            <p>Linked list (elaqeli siyahi)</p>
+            <a href="index.html">← Home</a>
+        </header>
+
+        <main>
+            <div class="section">
+                <h3>Singly linked list</h3>
+                <p>Her bir duyun (node) oz deyerini (data) ve novbeti duyunun unvanini (next) saxlayir.</p>
+
+                <div class="controls">
+                    <input type="text" id="nodeVal" placeholder="Deyer daxil et">
+                    <button onclick="addFirst()">Evvele elave et</button>
+                    <button onclick="addLast()">Sona elave et</button>
+                    <button onclick="removeFirst()">Evvelden sil</button>
+                    <button onclick="removeLast()">Sondan sil</button>
+                </div>
+
+                <div class="boxes" id="listContainer" style="align-items: center;"></div>
+                <div class="msg" id="msg"></div>
+            </div>
+        </main>
+
+    </div>
+
+    <script>
+        class Node {
+            constructor(data) {
+                this.data = data;
+                this.next = null;
+            }
+        }
+
+        class LinkedList {
+            constructor() {
+                this.head = null;
+            }
+
+            prepend(data) {
+                const newNode = new Node(data);
+                newNode.next = this.head;
+                this.head = newNode;
+            }
+
+            append(data) {
+                const newNode = new Node(data);
+                if (!this.head) {
+                    this.head = newNode;
+                    return;
+                }
+                let current = this.head;
+                while (current.next) {
+                    current = current.next;
+                }
+                current.next = newNode;
+            }
+
+            deleteFirst() {
+                if (!this.head) return false;
+                this.head = this.head.next;
+                return true;
+            }
+
+            deleteLast() {
+                if (!this.head) return false;
+                if (!this.head.next) {
+                    this.head = null;
+                    return true;
+                }
+                let current = this.head;
+                while (current.next.next) {
+                    current = current.next;
+                }
+                current.next = null;
+                return true;
+            }
+        }
+
+        const list = new LinkedList();
+        list.append(15);
+        list.append(42);
+        list.append(78);
+
+        function render() {
+            const container = document.getElementById("listContainer");
+            container.innerHTML = "";
+
+            let current = list.head;
+            if (!current) {
+                container.innerHTML = `<div class="box">NULL<span>Siyahi bosdur</span></div>`;
+                return;
+            }
+
+            let index = 0;
+            while (current) {
+                const nextText = current.next ? `next: ${current.next.data}` : "next: NULL";
+                const label = index === 0 ? `HEAD | ${nextText}` : nextText;
+
+                container.innerHTML += `<div class="box">${current.data}<span>${label}</span></div>`;
+
+                if (current.next) {
+                    container.innerHTML += `<div style="font-weight: bold;">→</div>`;
+                } else {
+                    container.innerHTML += `<div style="font-weight: bold;">→ NULL</div>`;
+                }
+
+                current = current.next;
+                index++;
+            }
+        }
+
+        function showMsg(text) {
+            document.getElementById("msg").innerText = text;
+        }
+
+        function addFirst() {
+            const input = document.getElementById("nodeVal");
+            if (input.value.trim() === "") return showMsg("Deyer daxil et.");
+            showMsg("");
+            list.prepend(input.value.trim());
+            input.value = "";
+            render();
+        }
+
+        function addLast() {
+            const input = document.getElementById("nodeVal");
+            if (input.value.trim() === "") return showMsg("Deyer daxil et.");
+            showMsg("");
+            list.append(input.value.trim());
+            input.value = "";
+            render();
+        }
+
+        function removeFirst() {
+            if (!list.deleteFirst()) return showMsg("Siyahi bosdur.");
+            showMsg("");
+            render();
+        }
+
+        function removeLast() {
+            if (!list.deleteLast()) return showMsg("Siyahi bosdur.");
+            showMsg("");
+            render();
+        }
+
+        render();
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,146 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: sans-serif;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+html,
+body {
+    width: 100%;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.container {
+    width: 100%;
+    max-width: 800px;
+    padding: 36px;
+}
+
+header {
+    border-bottom: 1px solid #aaa;
+    padding: 12px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+header a {
+    text-decoration: none;
+    color: #000;
+    border: 1px solid #aaa;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: .2s all ease-in-out;
+}
+
+ul {
+    padding: 12px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+ul li {
+    list-style: none;
+}
+
+ul li a {
+    text-decoration: none;
+    color: #000;
+    border: 1px solid #aaa;
+    padding: 6px 14px;
+    border-radius: 4px;
+    display: inline-block;
+    transition: .2s all cubic-bezier(0.215, 0.610, 0.355, 1);
+}
+
+.section {
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 24px;
+}
+
+.section h3 {
+    margin-bottom: 8px;
+    font-size: 16px;
+}
+
+.section p {
+    font-size: 14px;
+    color: #444;
+    margin-bottom: 14px;
+}
+
+.controls {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+
+input,
+button {
+    padding: 6px 12px;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    background: #fff;
+    font-size: 14px;
+}
+
+button {
+    cursor: pointer;
+}
+
+button:hover,
+ul li a:hover,
+header a:hover {
+    background-color: #e7e7e7;
+    box-shadow: 0px 2px 2px #000;
+}
+
+.boxes {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.box {
+    min-width: 65px;
+    padding: 10px;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.box span {
+    display: block;
+    font-size: 11px;
+    font-weight: normal;
+    color: #666;
+    margin-top: 4px;
+}
+
+.msg {
+    font-size: 13px;
+    color: #b00;
+    margin-top: 10px;
+}
+
+input:focus {
+    border: 1px solid #000;
+    outline: 1px solid transparent;
+}
+
+#bucketVal {
+    width: 160px;
+}

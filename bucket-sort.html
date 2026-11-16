@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Bucket Sort</title>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <header>
+            <p>Bucket Sort Alqoritmi</p>
+            <a href="index.html">← Home</a>
+        </header>
+
+        <main>
+            <div class="section">
+                <h3>Bucket Sort</h3>
+                <p>Elementler intervallara (buckets) bolunur: <code>idx = min(val // 20, 4)</code>. <br>
+                Qutularin daxilindeki elementler ardicil olaraq duzulur. <br>
+                Sonra her qutu cesidlenir ve ardicil olaraq birlesdirilir.</p>
+                <p>Eger butun elementler eyni araliqda olarsa bu zaman alqoritm verimsiz olacaq. <br> Meselen, hamisi 20-39 araliginda olarsa</p>
+
+                <div class="controls">
+                    <input type="number" id="bucketVal" placeholder="Deyer (0-100)" min="0" max="100">
+                    <div>
+                        <div>
+                            <button onclick="addNum()">Elave et — arr.append(x)</button>
+                            <button onclick="runBucketSort()">Cesidle — bucket_sort(arr)</button>
+                        </div>
+                        <div style="margin-top: 6px;">
+                            <button onclick="resetArr()">Sifirla</button>
+                        </div>
+                    </div>
+                </div>
+
+                <p style="margin-bottom: 6px; font-weight: bold; color: #000;">Ilkin siyahı (Array):</p>
+                <div class="boxes" id="rawContainer" style="margin-bottom: 16px;"></div>
+
+                <p style="margin-bottom: 6px; font-weight: bold; color: #000;">Qutular (Buckets):</p>
+                <div class="boxes" id="bucketsContainer" style="flex-direction: column; gap: 8px; margin-bottom: 16px;">
+                </div>
+
+                <p style="margin-bottom: 6px; font-weight: bold; color: #000;">Cesidlenmis netice (Sorted):</p>
+                <div class="boxes" id="sortedContainer"></div>
+
+                <div class="msg" id="msg"></div>
+            </div>
+        </main>
+
+    </div>
+
+    <script>
+        let rawList = [78, 17, 39, 26, 72, 94, 21, 12, 23, 68];
+        let buckets = [[], [], [], [], []];
+        let sortedList = [];
+
+        const ranges = ["0 - 19", "20 - 39", "40 - 59", "60 - 79", "80 - 100"];
+
+        function render() {
+            const rawEl = document.getElementById("rawContainer");
+            rawEl.innerHTML = rawList.length
+                ? rawList.map((n, i) => `<div class="box">${n}<span>idx: ${i}</span></div>`).join("")
+                : `<div class="box">BOS</div>`;
+
+            const bucketsEl = document.getElementById("bucketsContainer");
+            bucketsEl.innerHTML = buckets.map((b, i) => {
+                const content = b.length ? b.join(", ") : "bos";
+                return `
+                    <div class="box" style="text-align: left; display: flex; justify-content: space-between; align-items: center;">
+                        <div>[${content}]</div>
+                        <span style="margin-top: 0;">Bucket ${i} (${ranges[i]})</span>
+                    </div>
+                `;
+            }).join("");
+
+            const sortedEl = document.getElementById("sortedContainer");
+            sortedEl.innerHTML = sortedList.length
+                ? sortedList.map((n, i) => `<div class="box">${n}<span>idx: ${i}</span></div>`).join("")
+                : `<div class="box">Cesidlenmeyib<span>"Cesidle" duymesine basin</span></div>`;
+        }
+
+        function showMsg(text, isError = true) {
+            const msgEl = document.getElementById("msg");
+            msgEl.style.color = isError ? "#b00" : "#000";
+            msgEl.innerText = text;
+        }
+
+        function addNum() {
+            const input = document.getElementById("bucketVal");
+            const val = Number(input.value);
+            if (input.value === "" || val < 0 || val > 100) {
+                return showMsg("0 ile 100 arasi eded daxil edin.");
+            }
+            showMsg("");
+            rawList.push(val);
+            input.value = "";
+            buckets = [[], [], [], [], []];
+            sortedList = [];
+            render();
+        }
+
+        function runBucketSort() {
+            if (rawList.length === 0) return showMsg("Siyahi bosdur.");
+            buckets = [[], [], [], [], []];
+
+            // 1. Elementleri qutulara payla
+            for (let num of rawList) {
+                let idx = Math.min(Math.floor(num / 20), 4);
+                buckets[idx].push(num);
+            }
+
+            // 2. Her qutunun icini cesidle ve birlesdir
+            sortedList = [];
+            for (let b of buckets) {
+                b.sort((a, b) => a - b);
+                sortedList.push(...b);
+            }
+
+            showMsg("Elementler intervallara bolundu, cesidlendi ve birlesdirildi.", false);
+            render();
+        }
+
+        function resetArr() {
+            rawList = [78, 17, 39, 26, 72, 94, 21, 12, 23, 68];
+            buckets = [[], [], [], [], []];
+            sortedList = [];
+            showMsg("");
+            render();
+        }
+
+        render();
+    </script>
+
+</body>
+
+</html>

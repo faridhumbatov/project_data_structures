@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Deque</title>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <header>
+            <p>Deque (Double-ended queue)</p>
+            <a href="index.html">← Home</a>
+        </header>
+
+        <main>
+            <div class="section">
+                <h3>Deque (Iki terefli novbe)</h3>
+                <p>Elementler hem en evvele, hem de en sona elave edilib siline bilir.</p>
+
+                <div class="controls">
+                    <input type="text" id="dequeVal" placeholder="Deyer daxil et">
+                    <div>
+                        <div>
+                            <button onclick="addFront()">Evvele elave et — insert(0, x)</button>
+                            <button onclick="addRear()">Sona elave et — append(x)</button>
+                        </div>
+                        <div>
+                            <button onclick="removeFront()">Evvelden sil — pop(0)</button>
+                            <button onclick="removeRear()">Sondan sil — pop()</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="boxes" id="dequeContainer"></div>
+                <div class="msg" id="msg"></div>
+            </div>
+        </main>
+
+    </div>
+
+    <script>
+        class Deque {
+            constructor() {
+                this.items = [];
+            }
+
+            addFront(element) {
+                this.items.unshift(element);
+            }
+
+            addRear(element) {
+                this.items.push(element);
+            }
+
+            removeFront() {
+                if (this.isEmpty()) return null;
+                return this.items.shift();
+            }
+
+            removeRear() {
+                if (this.isEmpty()) return null;
+                return this.items.pop();
+            }
+
+            isEmpty() {
+                return this.items.length === 0;
+            }
+        }
+
+        const deque = new Deque();
+        deque.addRear(10);
+        deque.addRear(25);
+        deque.addRear(40);
+
+        function render() {
+            const container = document.getElementById("dequeContainer");
+            container.innerHTML = "";
+
+            if (deque.isEmpty()) {
+                container.innerHTML = `<div class="box">BOS<span>Deque bosdur</span></div>`;
+                return;
+            }
+
+            deque.items.forEach((item, index) => {
+                let label = `idx: ${index}`;
+                if (index === 0 && deque.items.length === 1) {
+                    label = `FRONT / REAR | idx: ${index}`;
+                } else if (index === 0) {
+                    label = `FRONT | idx: ${index}`;
+                } else if (index === deque.items.length - 1) {
+                    label = `REAR | idx: ${index}`;
+                }
+                container.innerHTML += `<div class="box">${item}<span>${label}</span></div>`;
+            });
+        }
+
+        function showMsg(text, isError = true) {
+            const msgEl = document.getElementById("msg");
+            msgEl.style.color = isError ? "#b00" : "#000";
+            msgEl.innerText = text;
+        }
+
+        function addFront() {
+            const input = document.getElementById("dequeVal");
+            if (input.value.trim() === "") return showMsg("Deyer daxil edin");
+            showMsg("");
+            deque.addFront(input.value.trim());
+            input.value = "";
+            render();
+        }
+
+        function addRear() {
+            const input = document.getElementById("dequeVal");
+            if (input.value.trim() === "") return showMsg("Deyer daxil edin");
+            showMsg("");
+            deque.addRear(input.value.trim());
+            input.value = "";
+            render();
+        }
+
+        function removeFront() {
+            const removed = deque.removeFront();
+            if (removed === null) return showMsg("Deque bosdur.");
+            showMsg(`Evvelden silindi: ${removed}`, false);
+            render();
+        }
+
+        function removeRear() {
+            const removed = deque.removeRear();
+            if (removed === null) return showMsg("Deque bosdur.");
+            showMsg(`Sondan silindi: ${removed}`, false);
+            render();
+        }
+
+        render();
+    </script>
+
+</body>
+
+</html>

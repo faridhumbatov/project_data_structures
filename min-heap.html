@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Complete Binary Tree ve Min-Heap</title>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <header>
+            <p>Complete Binary Tree ve Min-Heap</p>
+            <a href="index.html">← Home</a>
+        </header>
+
+        <main>
+            <div class="section">
+                <h3>Complete binary tree ve min-heap</h3>
+                <p>Soldan saga dogru bosluq buraxmadan dolur.</p>
+                <p>Min-heap qaydasina gore parent child'den her zaman kicik olmalidir. En kicik element root olur.</p>
+                <p>Parentden kicik bir element siyahiya daxil olarsa ozunden kicik element tapana qeder root'a dogru gedir.</p>
+
+                <div class="controls">
+                    <input type="number" id="heapVal" placeholder="Eded daxil et">
+                    <div>
+                        <div>
+                            <button onclick="insertHeap()">Elave et — heappush(heap, x)</button>
+                            <button onclick="extractMin()">En kiciyi sil — heappop(heap)</button>
+                        </div>
+                        <div style="margin-top: 6px;">
+                            <button onclick="resetHeap()">Sifirla</button>
+                        </div>
+                    </div>
+                </div>
+
+                <p style="margin-bottom: 6px; font-weight: bold; color: #000;">Agacvari struktur:</p>
+                <div id="treeWrapper"
+                    style="position: relative; border: 1px solid #aaa; border-radius: 4px; padding: 20px; margin-bottom: 16px;">
+                    <svg id="treeLines"
+                        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></svg>
+                    <div id="treeContainer"
+                        style="position: relative; z-index: 1; display: flex; flex-direction: column; gap: 36px; align-items: center;">
+                    </div>
+                </div>
+
+                <p style="margin-bottom: 6px; font-weight: bold; color: #000;">Yaddasda saxlanma formasi (Array
+                    temsili):</p>
+                <div class="boxes" id="arrayContainer"></div>
+
+                <div class="msg" id="msg"></div>
+            </div>
+        </main>
+
+    </div>
+
+    <script>
+        class MinHeap {
+            constructor() {
+                this.heap = [];
+            }
+
+            insert(val) {
+                this.heap.push(val);
+                this._heapifyUp(this.heap.length - 1);
+            }
+
+            extractMin() {
+                if (this.heap.length === 0) return null;
+                if (this.heap.length === 1) return this.heap.pop();
+
+                const min = this.heap[0];
+                this.heap[0] = this.heap.pop();
+                this._heapifyDown(0);
+                return min;
+            }
+
+            _heapifyUp(index) {
+                while (index > 0) {
+                    const parentIdx = Math.floor((index - 1) / 2);
+                    if (this.heap[index] < this.heap[parentIdx]) {
+                        [this.heap[index], this.heap[parentIdx]] = [this.heap[parentIdx], this.heap[index]];
+                        index = parentIdx;
+                    } else {
+                        break;
+                    }
+                }
+            }
+
+            _heapifyDown(index) {
+                const len = this.heap.length;
+                while (true) {
+                    let smallest = index;
+                    const left = 2 * index + 1;
+                    const right = 2 * index + 2;
+
+                    if (left < len && this.heap[left] < this.heap[smallest]) {
+                        smallest = left;
+                    }
+                    if (right < len && this.heap[right] < this.heap[smallest]) {
+                        smallest = right;
+                    }
+                    if (smallest !== index) {
+                        [this.heap[index], this.heap[smallest]] = [this.heap[smallest], this.heap[index]];
+                        index = smallest;
+                    } else {
+                        break;
+                    }
+                }
+            }
+        }
+
+        const minHeap = new MinHeap();
+        [10, 20, 15, 30, 40, 25].forEach(n => minHeap.insert(n));
+
+        function drawArrows() {
+            const svg = document.getElementById("treeLines");
+            const wrapper = document.getElementById("treeWrapper");
+            const wrapRect = wrapper.getBoundingClientRect();
+
+            svg.innerHTML = `
+                <defs>
+                    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                        <path d="M 0 1 L 10 5 L 0 9 z" fill="#555" />
+                    </marker>
+                </defs>
+            `;
+
+            for (let i = 1; i < minHeap.heap.length; i++) {
+                const parentIdx = Math.floor((i - 1) / 2);
+                const parentEl = document.getElementById(`node-${parentIdx}`);
+                const childEl = document.getElementById(`node-${i}`);
+
+                if (parentEl && childEl) {
+                    const pRect = parentEl.getBoundingClientRect();
+                    const cRect = childEl.getBoundingClientRect();
+
+                    const x1 = pRect.left + pRect.width / 2 - wrapRect.left;
+                    const y1 = pRect.bottom - wrapRect.top;
+                    const x2 = cRect.left + cRect.width / 2 - wrapRect.left;
+                    const y2 = cRect.top - wrapRect.top;
+
+                    svg.innerHTML += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)" />`;
+                }
+            }
+        }
+
+        function render() {
+            const treeEl = document.getElementById("treeContainer");
+            const arrEl = document.getElementById("arrayContainer");
+            treeEl.innerHTML = "";
+            arrEl.innerHTML = "";
+
+            if (minHeap.heap.length === 0) {
+                document.getElementById("treeLines").innerHTML = "";
+                treeEl.innerHTML = `<div class="box">BOS<span>Agac bosdur</span></div>`;
+                arrEl.innerHTML = `<div class="box">BOS</div>`;
+                return;
+            }
+
+            // 1. Seviyyeler uzre Agac gorunusu (Complete Binary Tree)
+            let level = 0;
+            let index = 0;
+            while (index < minHeap.heap.length) {
+                const count = Math.pow(2, level);
+                const slice = minHeap.heap.slice(index, index + count);
+
+                let rowHtml = `<div style="display: flex; gap: 24px; justify-content: center; flex-wrap: wrap;">`;
+                slice.forEach((val, offset) => {
+                    const realIdx = index + offset;
+                    const role = realIdx === 0 ? "ROOT (Min)" : `idx: ${realIdx}`;
+                    rowHtml += `<div class="box" id="node-${realIdx}" style="background: #fff;">${val}<span>${role}</span></div>`;
+                });
+                rowHtml += `</div>`;
+                treeEl.innerHTML += rowHtml;
+
+                index += count;
+                level++;
+            }
+
+            // 2. Massiv (Array) gorunusu
+            minHeap.heap.forEach((val, i) => {
+                const parentInfo = i === 0 ? "root" : `parent: idx ${Math.floor((i - 1) / 2)}`;
+                arrEl.innerHTML += `<div class="box">${val}<span>idx: ${i} | ${parentInfo}</span></div>`;
+            });
+
+            requestAnimationFrame(drawArrows);
+        }
+
+        window.addEventListener("resize", drawArrows);
+
+        function showMsg(text, isError = true) {
+            const msgEl = document.getElementById("msg");
+            msgEl.style.color = isError ? "#b00" : "#000";
+            msgEl.innerText = text;
+        }
+
+        function insertHeap() {
+            const input = document.getElementById("heapVal");
+            if (input.value === "") return showMsg("Eded daxil edin.");
+            const val = Number(input.value);
+            minHeap.insert(val);
+            input.value = "";
+            showMsg(`${val} elave edildi ve heapify_up ile oz yerine qalxdi.`, false);
+            render();
+        }
+
+        function extractMin() {
+            const min = minHeap.extractMin();
+            if (min === null) return showMsg("Heap bosdur.");
+            showMsg(`En kicik element (${min}) silindi, son element koke kecib heapify_down etdi.`, false);
+            render();
+        }
+
+        function resetHeap() {
+            minHeap.heap = [];
+            [10, 20, 15, 30, 40, 25].forEach(n => minHeap.insert(n));
+            showMsg("");
+            render();
+        }
+
+        render();
+    </script>
+
+</body>
+
+</html>

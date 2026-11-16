@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>LIFO (Stack)</title>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <header>
+            <p>LIFO (Stack)</p>
+            <a href="index.html">← Home</a>
+        </header>
+
+        <main>
+            <div class="section">
+                <h3>Stack last in first out</h3>
+                <p>Elementler yalniz en sona elave edilir (Push) ve en sondan silinir (Pop).</p>
+
+                <div class="controls">
+                    <input type="text" id="stackVal" placeholder="Deyer daxil et">
+                    <button onclick="pushItem()">Push (Elave et)</button>
+                    <button onclick="popItem()">Pop (Sonuncunu sil)</button>
+                    <button onclick="peekItem()">Peek (Sonuncuya bax)</button>
+                </div>
+
+                <div class="boxes" id="stackContainer" style="flex-direction: column-reverse; max-width: 220px;"></div>
+                <div class="msg" id="msg"></div>
+            </div>
+        </main>
+
+    </div>
+
+    <script>
+        class Stack {
+            constructor() {
+                this.items = [];
+            }
+
+            push(element) {
+                this.items.push(element);
+            }
+
+            pop() {
+                if (this.isEmpty()) return null;
+                return this.items.pop();
+            }
+
+            peek() {
+                if (this.isEmpty()) return null;
+                return this.items[this.items.length - 1];
+            }
+
+            isEmpty() {
+                return this.items.length === 0;
+            }
+        }
+
+        const stack = new Stack();
+        stack.push(10);
+        stack.push(25);
+        stack.push(40);
+
+        function render() {
+            const container = document.getElementById("stackContainer");
+            container.innerHTML = "";
+
+            if (stack.isEmpty()) {
+                container.innerHTML = `<div class="box">BOS<span>Stack bosdur</span></div>`;
+                return;
+            }
+
+            stack.items.forEach((item, index) => {
+                const isTop = index === stack.items.length - 1;
+                const label = isTop ? `TOP | idx: ${index}` : `idx: ${index}`;
+                container.innerHTML += `<div class="box">${item}<span>${label}</span></div>`;
+            });
+        }
+
+        function showMsg(text, isError = true) {
+            const msgEl = document.getElementById("msg");
+            msgEl.style.color = isError ? "#b00" : "#000";
+            msgEl.innerText = text;
+        }
+
+        function pushItem() {
+            const input = document.getElementById("stackVal");
+            if (input.value.trim() === "") return showMsg("Deyer daxil edin.");
+            showMsg("");
+            stack.push(input.value.trim());
+            input.value = "";
+            render();
+        }
+
+        function popItem() {
+            const removed = stack.pop();
+            if (removed === null) return showMsg("Stack bosdur.");
+            showMsg(`Silinen element (Pop): ${removed}`, false);
+            render();
+        }
+
+        function peekItem() {
+            const top = stack.peek();
+            if (top === null) return showMsg("Stack bosdur.");
+            showMsg(`Sonuncu element (Peek): ${top}`, false);
+        }
+
+        render();
+    </script>
+
+</body>
+
+</html>

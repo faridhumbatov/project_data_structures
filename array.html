@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="az">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Array ve list</title>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <header>
+            <p>Array ve List</p>
+            <a href="index.html">← Home</a>
+        </header>
+
+        <main>
+            <div class="section">
+                <h3>1. Array</h3>
+                <p>Sabit olculudur. Numunedeki arrayda max 5 deyer saxlanila biler</p>
+
+                <div class="controls">
+                    <input type="number" id="arrIndex" placeholder="Index [0;4]" min="0" max="4">
+                    <input type="number" id="arrVal" placeholder="Deyer">
+                    <button onclick="setArray()">Yaz</button>
+                    <button onclick="clearArray()">Arrayi temizle</button>
+                </div>
+
+                <div class="boxes" id="arrayContainer"></div>
+                <div class="msg" id="arrMsg"></div>
+            </div>
+
+            <div class="section">
+                <h3>2. List (dinamik siyahi)</h3>
+                <p>Olcu limiti yoxdur. Yeni deyer elave etdikce list genislenir</p>
+
+                <div class="controls">
+                    <input type="number" id="listVal" placeholder="Yeni deyer">
+                    <button onclick="addList()">Elave et (append)</button>
+                    <button onclick="removeList()">Sonuncunu sil (pop)</button>
+                </div>
+
+                <div class="boxes" id="listContainer"></div>
+            </div>
+        </main>
+
+    </div>
+
+    <script>
+        let fixedArray = [85, 90, null, null, null];
+
+        function renderArray() {
+            const container = document.getElementById("arrayContainer");
+            container.innerHTML = "";
+            for (let i = 0; i < fixedArray.length; i++) {
+                let val = fixedArray[i] !== null ? fixedArray[i] : "bos";
+                container.innerHTML += `<div class="box">${val}<span>idx: ${i}</span></div>`;
+            }
+        }
+
+        function setArray() {
+            const idx = parseInt(document.getElementById("arrIndex").value);
+            const val = document.getElementById("arrVal").value;
+            const msg = document.getElementById("arrMsg");
+
+            if (isNaN(idx) || idx < 0 || idx > 4) {
+                msg.innerText = "Index [0-4] arasi olmalidir";
+                return;
+            }
+            if (val === "") return;
+
+            msg.innerText = "";
+            fixedArray[idx] = Number(val);
+            renderArray();
+        }
+
+        function clearArray() {
+            fixedArray = [null, null, null, null, null];
+            document.getElementById("arrMsg").innerText = "";
+            renderArray();
+        }
+
+        let dynamicList = [70, 88, 95];
+
+        function renderList() {
+            const container = document.getElementById("listContainer");
+            container.innerHTML = "";
+            dynamicList.forEach((item, index) => {
+                container.innerHTML += `<div class="box">${item}<span>idx: ${index}</span></div>`;
+            });
+        }
+
+        function addList() {
+            const val = document.getElementById("listVal").value;
+            if (val === "") return;
+            dynamicList.push(Number(val));
+            document.getElementById("listVal").value = "";
+            renderList();
+        }
+
+        function removeList() {
+            dynamicList.pop();
+            renderList();
+        }
+
+        renderArray();
+        renderList();
+    </script>
+
+</body>
+
+</html>

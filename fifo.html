@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>FIFO (Queue)</title>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <header>
+            <p>FIFO (Queue)</p>
+            <a href="index.html">← Home</a>
+        </header>
+
+        <main>
+            <div class="section">
+                <h3>Queue first in first out</h3>
+                <p>Elementler en sona elave edilir (Enqueue) ve en evvelden silinir (Dequeue).</p>
+
+                <div class="controls">
+                    <input type="text" id="queueVal" placeholder="Deyer daxil et">
+                    <button onclick="enqueueItem()">Enqueue (Elave et)</button>
+                    <button onclick="dequeueItem()">Dequeue (Ilkini sil)</button>
+                    <button onclick="frontItem()">Front (Ilkine bax)</button>
+                </div>
+
+                <div class="boxes" id="queueContainer"></div>
+                <div class="msg" id="msg"></div>
+            </div>
+        </main>
+
+    </div>
+
+    <script>
+        class Queue {
+            constructor() {
+                this.items = [];
+            }
+
+            enqueue(element) {
+                this.items.push(element);
+            }
+
+            dequeue() {
+                if (this.isEmpty()) return null;
+                return this.items.shift();
+            }
+
+            front() {
+                if (this.isEmpty()) return null;
+                return this.items[0];
+            }
+
+            isEmpty() {
+                return this.items.length === 0;
+            }
+        }
+
+        const queue = new Queue();
+        queue.enqueue(10);
+        queue.enqueue(25);
+        queue.enqueue(40);
+
+        function render() {
+            const container = document.getElementById("queueContainer");
+            container.innerHTML = "";
+
+            if (queue.isEmpty()) {
+                container.innerHTML = `<div class="box">BOS<span>Queue bosdur</span></div>`;
+                return;
+            }
+
+            queue.items.forEach((item, index) => {
+                let label = `idx: ${index}`;
+                if (index === 0 && queue.items.length === 1) {
+                    label = `FRONT / REAR | idx: ${index}`;
+                } else if (index === 0) {
+                    label = `FRONT | idx: ${index}`;
+                } else if (index === queue.items.length - 1) {
+                    label = `REAR | idx: ${index}`;
+                }
+                container.innerHTML += `<div class="box">${item}<span>${label}</span></div>`;
+            });
+        }
+
+        function showMsg(text, isError = true) {
+            const msgEl = document.getElementById("msg");
+            msgEl.style.color = isError ? "#b00" : "#000";
+            msgEl.innerText = text;
+        }
+
+        function enqueueItem() {
+            const input = document.getElementById("queueVal");
+            if (input.value.trim() === "") return showMsg("Deyer daxil et.");
+            showMsg("");
+            queue.enqueue(input.value.trim());
+            input.value = "";
+            render();
+        }
+
+        function dequeueItem() {
+            const removed = queue.dequeue();
+            if (removed === null) return showMsg("Queue bosdur.");
+            showMsg(`Silinen element (Dequeue): ${removed}`, false);
+            render();
+        }
+
+        function frontItem() {
+            const first = queue.front();
+            if (first === null) return showMsg("Queue bosdur.");
+            showMsg(`Ilk element (Front): ${first}`, false);
+        }
+
+        render();
+    </script>
+
+</body>
+
+</html>

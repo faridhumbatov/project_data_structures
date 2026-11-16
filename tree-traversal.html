@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Agac Strukturlari (Traversal)</title>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <header>
+            <p>Agac Strukturlari (Preorder, Inorder, Postorder)</p>
+            <a href="index.html">← Home</a>
+        </header>
+
+        <main>
+            <div class="section">
+                <h3>Binary search tree ve Traversals</h3>
+                <p>BST qaydasina gore eded parentden kicikdirse <strong> sola</strong>, boyukdurse <strong> saga</strong> yerlesir.</p>
+                <p>
+                    <strong>Preorder:</strong> kok → sol → sag <br>
+                    <strong>Inorder:</strong> sol → kok → sag <br>
+                    <strong>Postorder:</strong> sol → sag → kok
+                </p>
+
+                <div class="controls">
+                    <input type="number" id="treeVal" placeholder="Eded daxil et">
+                    <div>
+                        <div>
+                            <button onclick="addNode()">Elave et — insert(root, x)</button>
+                            <button onclick="resetTree()">Sifirla</button>
+                        </div>
+                        <div style="margin-top: 6px;">
+                            <button onclick="runTraversal('preorder')">Preorder — preorder(root)</button>
+                            <button onclick="runTraversal('inorder')">Inorder — inorder(root)</button>
+                            <button onclick="runTraversal('postorder')">Postorder — postorder(root)</button>
+                        </div>
+                    </div>
+                </div>
+
+                <p style="margin-bottom: 6px; font-weight: bold; color: #000;">Agac strukturu (BST):</p>
+                <div id="treeWrapper"
+                    style="position: relative; border: 1px solid #aaa; border-radius: 4px; width: 100%; height: 340px; margin-bottom: 16px;">
+                    <svg id="treeLines"
+                        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></svg>
+                    <div id="treeContainer" style="position: relative; width: 100%; height: 100%;"></div>
+                </div>
+
+                <p style="margin-bottom: 6px; font-weight: bold; color: #000;">Traversal neticesi</p>
+                <div class="boxes" id="resultContainer"></div>
+
+                <div class="msg" id="msg"></div>
+            </div>
+        </main>
+
+    </div>
+
+    <script>
+        class Node {
+            constructor(val) {
+                this.val = val;
+                this.left = null;
+                this.right = null;
+            }
+        }
+
+        class BST {
+            constructor() {
+                this.root = null;
+            }
+
+            insert(val) {
+                const newNode = new Node(val);
+                if (!this.root) {
+                    this.root = newNode;
+                    return true;
+                }
+                let curr = this.root;
+                while (true) {
+                    if (val === curr.val) return false;
+                    if (val < curr.val) {
+                        if (!curr.left) {
+                            curr.left = newNode;
+                            return true;
+                        }
+                        curr = curr.left;
+                    } else {
+                        if (!curr.right) {
+                            curr.right = newNode;
+                            return true;
+                        }
+                        curr = curr.right;
+                    }
+                }
+            }
+
+            getDepth(node = this.root) {
+                if (!node) return 0;
+                return 1 + Math.max(this.getDepth(node.left), this.getDepth(node.right));
+            }
+
+            preorder(node = this.root, res = []) {
+                if (!node) return res;
+                res.push(node.val);
+                this.preorder(node.left, res);
+                this.preorder(node.right, res);
+                return res;
+            }
+
+            inorder(node = this.root, res = []) {
+                if (!node) return res;
+                this.inorder(node.left, res);
+                res.push(node.val);
+                this.inorder(node.right, res);
+                return res;
+            }
+
+            postorder(node = this.root, res = []) {
+                if (!node) return res;
+                this.postorder(node.left, res);
+                this.postorder(node.right, res);
+                res.push(node.val);
+                return res;
+            }
+        }
+
+        const tree = new BST();
+        [50, 30, 70, 20, 40, 60, 80].forEach(n => tree.insert(n));
+
+        function renderTree() {
+            const wrapper = document.getElementById("treeWrapper");
+            const treeEl = document.getElementById("treeContainer");
+            const svg = document.getElementById("treeLines");
+            const resEl = document.getElementById("resultContainer");
+
+            treeEl.innerHTML = "";
+            resEl.innerHTML = `<div class="box">Secilmeyib<span>Gezis duymesine basin</span></div>`;
+
+            if (!tree.root) {
+                svg.innerHTML = "";
+                wrapper.style.height = "120px";
+                treeEl.innerHTML = `<div class="box" style="margin: 30px auto;">BOS<span>Agac bosdur</span></div>`;
+                return;
+            }
+
+            const depth = tree.getDepth();
+            const levelHeight = 82;
+            wrapper.style.height = `${depth * levelHeight + 20}px`;
+
+            const width = wrapper.clientWidth;
+            let linesHtml = `
+                <defs>
+                    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                        <path d="M 0 1 L 10 5 L 0 9 z" fill="#555" />
+                    </marker>
+                </defs>
+            `;
+
+            function drawNode(node, x, y, offsetX, side) {
+                if (!node) return;
+
+                const boxW = 58;
+                const boxH = 48;
+
+                if (node.left) {
+                    const childX = x - offsetX;
+                    const childY = y + levelHeight;
+                    linesHtml += `<line x1="${x}" y1="${y + boxH}" x2="${childX}" y2="${childY}" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)" />`;
+                    drawNode(node.left, childX, childY, offsetX / 2, "Left");
+                }
+
+                if (node.right) {
+                    const childX = x + offsetX;
+                    const childY = y + levelHeight;
+                    linesHtml += `<line x1="${x}" y1="${y + boxH}" x2="${childX}" y2="${childY}" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)" />`;
+                    drawNode(node.right, childX, childY, offsetX / 2, "Right");
+                }
+
+                treeEl.innerHTML += `
+                    <div class="box" style="position: absolute; left: ${x - boxW / 2}px; top: ${y}px; width: ${boxW}px; min-width: ${boxW}px; padding: 6px 4px; background: #fff;">
+                        ${node.val}<span>${side}</span>
+                    </div>
+                `;
+            }
+
+            drawNode(tree.root, width / 2, 16, width / 4, "ROOT");
+            svg.innerHTML = linesHtml;
+        }
+
+        function showMsg(text, isError = true) {
+            const msgEl = document.getElementById("msg");
+            msgEl.style.color = isError ? "#b00" : "#000";
+            msgEl.innerText = text;
+        }
+
+        function addNode() {
+            const input = document.getElementById("treeVal");
+            if (input.value === "") return showMsg("Eded daxil edin.");
+            const val = Number(input.value);
+            const added = tree.insert(val);
+            if (added === false) return showMsg("Eded agacda movcuddur.");
+            input.value = "";
+            showMsg(`${val} elave edildi.`, false);
+            renderTree();
+        }
+
+        function runTraversal(type) {
+            let result = [];
+            let title = "";
+
+            if (type === "preorder") {
+                result = tree.preorder();
+                title = "Preorder (kok → sol → sag)";
+            } else if (type === "inorder") {
+                result = tree.inorder();
+                title = "Inorder (sol → kok → sag)";
+            } else if (type === "postorder") {
+                result = tree.postorder();
+                title = "Postorder (sol → sag → kok)";
+            }
+
+            const resEl = document.getElementById("resultContainer");
+            resEl.innerHTML = result.map((val, i) => `<div class="box">${val}<span>addim: ${i + 1}</span></div>`).join("");
+            showMsg(`${title}: [${result.join(", ")}]`, false);
+        }
+
+        function resetTree() {
+            tree.root = null;
+            [50, 30, 70, 20, 40, 60, 80].forEach(n => tree.insert(n));
+            showMsg("");
+            renderTree();
+        }
+
+        window.addEventListener("resize", renderTree);
+        renderTree();
+    </script>
+
+</body>
+
+</html>
